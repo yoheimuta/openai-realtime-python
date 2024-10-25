@@ -77,6 +77,7 @@ Before running the demo, ensure you have the following installed and configured:
 
 - [POST /start](#post-start)
 - [POST /stop](#post-stop)
+- [POST /control_agent](#control_agent)
 
 ### POST /start
 
@@ -117,6 +118,79 @@ curl 'http://localhost:8080/stop_agent' \
     "channel_name": "test"
   }'
 ```
+
+### POST /control_agent
+
+This API controls an already running agent by sending various commands to adjust the agent's behavior or update its settings. Each command has different parameters, allowing you to update instructions, turn detection, or send user text for the agent to process. The agent must be running in the specified channel for the command to be executed.
+
+| Param             | Type     | Description                                                                                                                                                                    |
+|-------------------|----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `channel_name`    | `string` | (Required) The name of the channel where the agent is running. It must match the active channel of the agent that the command targets.                                        |
+| `command`         | `string` | (Required) The command to be sent to the agent. Possible values are: `update_instruction`, `update_turn_detection`, `send_user_text`, `create_response`, and `commit_audio_buffer`. |
+| `new_instruction` | `string` | (Optional) The new system instruction for the agent. Required when `command` is `update_instruction` or `create_response`.                                                     |
+| `new_turn_detection` | `boolean` | (Optional) Specifies whether to enable or disable turn detection. When `command` is `update_turn_detection`, pass `true` to enable or `false` to disable.                    |
+| `user_text`       | `string` | (Optional) Text message from the user to be processed by the agent. Required when `command` is `send_user_text`.                                                              |
+
+#### Commands
+
+Each command controls a different aspect of the agent’s operation. Below are the details of each command and its requirements.
+
+##### `update_instruction`
+Updates the agent's current system instruction with a new one.
+
+- **Required Fields**: `channel_name`, `command`, `new_instruction`
+- **Description**: Updates the system instruction for the agent, which adjusts its behavior or response style. The new instruction is specified in `new_instruction`.
+
+##### `update_turn_detection`
+Enables or disables turn detection based on the `new_turn_detection` value.
+
+- **Required Fields**: `channel_name`, `command`, `new_turn_detection`
+- **Description**: Sets the turn detection to `DEFAULT_TURN_DETECTION` if `new_turn_detection` is `true`, or disables it by setting to `None` if `new_turn_detection` is `false`.
+
+##### `send_user_text`
+Sends a message as if it came from a user, allowing the agent to process it as input.
+
+- **Required Fields**: `channel_name`, `command`, `user_text`
+- **Description**: Sends the specified `user_text` as input for the agent to respond to or use as part of its processing.
+
+##### `create_response`
+Generates a response based on the `new_instruction` provided.
+
+- **Required Fields**: `channel_name`, `command`, `new_instruction`
+- **Description**: Instructs the agent to generate a response according to the provided `new_instruction`. This is used to create specific responses directly.
+
+##### `commit_audio_buffer`
+Commits the current audio buffer, processing it for output or storage.
+
+- **Required Fields**: `channel_name`, `command`
+- **Description**: Instructs the agent to commit its current audio buffer. This command is useful for audio processing or storage purposes.
+
+#### Example Request
+
+```bash
+curl -X POST 'http://localhost:8080/control_agent' \
+-H 'Content-Type: application/json' \
+--data-raw '{
+    "channel_name": "test",
+    "command": "update_instruction",
+    "new_instruction": "You are now assisting Yohei with game suggestions."
+}'
+```
+
+#### Responses
+
+- **Success**:
+  - Status `200 OK`
+  - JSON: `{ "status": "Command <command> sent to agent." }`
+
+### Voice-Triggered Agent Control
+
+This feature enables the agent to start or stop based on specific user voice commands, allowing hands-free control.
+
+- Saying `Hey...Start` will resume a paused agent, allowing it to continue operation within the specified channel.
+- Saying `Hey...Stop` will pause the currently running agent, effectively stopping its interaction until resumed.
+
+This functionality enables more natural, responsive interactions, where users can start or stop the agent dynamically based on their spoken commands.
 
 ### Front-End for Testing
 
