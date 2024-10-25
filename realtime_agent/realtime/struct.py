@@ -575,7 +575,8 @@ class ResponseCreateParams:
     tools: Optional[List[Dict[str, Any]]] = None  # Tools available for this response
     tool_choice: Optional[ToolChoice] = None  # How to choose the tool ("auto", "required", etc.)
     temperature: Optional[float] = None  # The randomness of the model's responses
-    max_response_output_tokens: Optional[Union[int, str]] = None  # Max number of tokens for the output, "inf" for infinite
+    # Comment out because of unexpected error when sending create response
+    # max_response_output_tokens: Optional[Union[int, str]] = None  # Max number of tokens for the output, "inf" for infinite
 
 
 @dataclass
@@ -729,3 +730,7 @@ def parse_server_message(unparsed_string: str) -> ServerToClientMessage:
     
 def to_json(obj: Union[ClientToServerMessage, ServerToClientMessage]) -> str:
     return json.dumps(asdict(obj))
+
+DEFAULT_TURN_DETECTION=ServerVADUpdateParams(
+    type="server_vad", threshold=0.5, prefix_padding_ms=300, silence_duration_ms=200
+)
