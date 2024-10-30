@@ -6,7 +6,7 @@ import os
 import aiohttp
 
 from typing import Any, AsyncGenerator
-from .struct import InputAudioBufferAppend, InputAudioBufferCommit, ItemCreate, UserMessageItemParam, ResponseCreate, ResponseCancel, ResponseCreateParams, AssistantMessageItemParam, ClientToServerMessage, ServerToClientMessage, parse_server_message, to_json, SystemMessageItemParam
+from .struct import InputAudioBufferAppend, InputAudioBufferCommit, ItemCreate, UserMessageItemParam, ResponseCreate, ResponseCancel, ResponseCreateParams, AssistantMessageItemParam, ClientToServerMessage, ServerToClientMessage, parse_server_message, to_json, SystemMessageItemParam, FunctionCallOutputItemParam
 from ..logger import setup_logger
 
 # Set up the logger with color and timestamp support
@@ -87,6 +87,10 @@ class RealtimeApiConnection:
 
     async def send_user_text(self, text: str):
         message = ItemCreate(item=UserMessageItemParam(content=[{"type": "input_text", "text": text}]))
+        await self.send_request(message)
+
+    async def send_function_call_output(self, call_id: str, text: str):
+        message = ItemCreate(item=FunctionCallOutputItemParam(call_id=call_id, output=text))
         await self.send_request(message)
 
     async def send_assistant_text(self, text: str):

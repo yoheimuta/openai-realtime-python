@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 from pydantic import BaseModel, Field, ValidationError
 
 from .realtime.struct import PCM_CHANNELS, PCM_SAMPLE_RATE, ServerVADUpdateParams, Voices, DEFAULT_TURN_DETECTION
+from .tools import ToolContext
 
 from .agent import InferenceConfig, RealtimeKitAgent
 from agora_realtime_ai_api.rtc import RtcEngine, RtcOptions
@@ -61,6 +62,28 @@ def handle_agent_proc_signal(signum, frame):
     logger.info(f"Agent process received signal {signal.strsignal(signum)}. Exiting...")
     os._exit(0)
 
+async def get_reversi_board() -> str:
+    logger.info("Received get_reversi_board request.")
+    return """
+Row A: 0 0 0 0 0 0 0 0
+Row B: 0 0 1 1 1 2 0 0
+Row C: 0 0 1 1 2 1 0 0
+Row D: 0 0 1 2 2 1 0 0
+Row E: 0 0 0 2 2 0 0 0
+Row F: 0 0 0 0 2 0 0 0
+Row G: 0 0 0 0 0 0 0 0
+Row H: 0 0 0 0 0 0 0 0
+    """
+
+def create_tools() -> ToolContext:
+    tool_context = ToolContext()
+    # tool_context.register_function(
+    #    name="get_latest_reversi_board",
+    #    description="Call this function whenever you need to check the latest game play status of Reversi when the user is playing with CPU and you are pretending to be this CPU.",
+    #    parameters={},
+    #    fn=get_reversi_board,
+    #)
+    return tool_context
 
 def run_agent_in_process(
     engine_app_id: str,
@@ -84,7 +107,7 @@ def run_agent_in_process(
                 enable_pcm_dump=os.environ.get("WRITE_RTC_PCM", "false") == "true"
             ),
             inference_config=inference_config,
-            tools=None,
+            tools=create_tools(),
             command_queue=command_queue,
         )
     )

@@ -1,5 +1,6 @@
 import asyncio
 import base64
+import json
 import logging
 import os
 from builtins import anext
@@ -12,7 +13,7 @@ from attr import dataclass
 from agora_realtime_ai_api.rtc import Channel, ChatMessage, RtcEngine, RtcOptions
 
 from .logger import setup_logger
-from .realtime.struct import InputAudioBufferCommitted, InputAudioBufferSpeechStarted, InputAudioBufferSpeechStopped, InputAudioTranscription, ItemCreated, ItemInputAudioTranscriptionCompleted, RateLimitsUpdated, ResponseAudioDelta, ResponseAudioDone, ResponseAudioTranscriptDelta, ResponseAudioTranscriptDone, ResponseContentPartAdded, ResponseContentPartDone, ResponseCreated, ResponseDone, ResponseOutputItemAdded, ResponseOutputItemDone, ServerVADUpdateParams, SessionUpdate, SessionUpdateParams, SessionUpdated, Voices, to_json, DEFAULT_TURN_DETECTION
+from .realtime.struct import InputAudioBufferCommitted, InputAudioBufferSpeechStarted, InputAudioBufferSpeechStopped, InputAudioTranscription, ItemCreated, ItemInputAudioTranscriptionCompleted, RateLimitsUpdated, ResponseAudioDelta, ResponseAudioDone, ResponseAudioTranscriptDelta, ResponseAudioTranscriptDone, ResponseContentPartAdded, ResponseContentPartDone, ResponseCreated, ResponseDone, ResponseOutputItemAdded, ResponseOutputItemDone, ServerVADUpdateParams, SessionUpdate, SessionUpdateParams, SessionUpdated, Voices, to_json, DEFAULT_TURN_DETECTION, ResponseFunctionCallArgumentsDone, ResponseFunctionCallArgumentsDelta
 from .realtime.connection import RealtimeApiConnection
 from .tools import ClientToolCallResponse, ToolContext
 from .utils import PCMWriter
@@ -428,5 +429,16 @@ class RealtimeKitAgent:
                     pass
                 case RateLimitsUpdated():
                     pass
+                case ResponseFunctionCallArgumentsDelta():
+                    pass
+                case ResponseFunctionCallArgumentsDone():
+                    logger.info(f"ResponseFunctionCallArgumentsDone: {message=}")
+                    name = message.name
+                    call_id = message.call_id
+                    args = json.loads(message.arguments)
+                    logger.info(f"ResponseFunctionCallArgumentsDone: {name=} {args=} {call_id=}")
+
+                    got = await self.tools.execute_tool(name, message.arguments)
+                    await self.connection.send_function_call_output(call_id, got.json_encoded_output)
                 case _:
                     logger.warning(f"Unhandled message {message=}")
