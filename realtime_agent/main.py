@@ -211,7 +211,7 @@ async def control_agent(request):
         command = data.get("command")
         new_instruction = data.get("new_instruction", "")
         new_turn_detection = data.get("new_turn_detection", False)
-        user_text = data.get("user_text", "")
+        input_text = data.get("input_text", "")
 
         if channel_name not in active_processes:
             return web.json_response({"error": "No agent running for the specified channel"}, status=404)
@@ -227,9 +227,12 @@ async def control_agent(request):
             logger.info(f"Put command {command} in queue")
             command_queue.put("update_turn_detection")
             command_queue.put(DEFAULT_TURN_DETECTION if new_turn_detection else None)
+        elif command == "send_system_text":
+            command_queue.put("send_system_text")
+            command_queue.put(input_text)
         elif command == "send_user_text":
             command_queue.put("send_user_text")
-            command_queue.put(user_text)
+            command_queue.put(input_text)
         elif command == "create_response":
             command_queue.put("create_response")
             command_queue.put(new_instruction)

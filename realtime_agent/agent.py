@@ -219,6 +219,9 @@ class RealtimeKitAgent:
             elif command == "update_turn_detection":
                 new_turn_detection = self.command_queue.get()  # Get the next item (turn_detection)
                 await self._update_turn_detection(new_turn_detection)
+            elif command == "send_system_text":
+                text = self.command_queue.get()  # Get the next item (text)
+                await self._send_system_text(text)
             elif command == "send_user_text":
                 text = self.command_queue.get()  # Get the next item (text)
                 await self._send_user_text(text)
@@ -308,6 +311,10 @@ class RealtimeKitAgent:
         except Exception as e:
             logger.error(f"Failed to update turn detection: {e}")
             raise
+
+    async def _send_system_text(self, text:str) -> None:
+        await self.connection.send_system_text(text)
+        logger.info(f"system text sent: {text}")
 
     async def _send_user_text(self, text:str) -> None:
         await self.connection.send_user_text(text)

@@ -129,7 +129,7 @@ This API controls an already running agent by sending various commands to adjust
 | `command`         | `string` | (Required) The command to be sent to the agent. Possible values are: `update_instruction`, `update_turn_detection`, `send_user_text`, `create_response`, and `commit_audio_buffer`. |
 | `new_instruction` | `string` | (Optional) The new system instruction for the agent. Required when `command` is `update_instruction` or `create_response`.                                                     |
 | `new_turn_detection` | `boolean` | (Optional) Specifies whether to enable or disable turn detection. When `command` is `update_turn_detection`, pass `true` to enable or `false` to disable.                    |
-| `user_text`       | `string` | (Optional) Text message from the user to be processed by the agent. Required when `command` is `send_user_text`.                                                              |
+| `input_text`       | `string` | (Optional) Text message from the user to be processed by the agent. Required when `command` is `send_user_text` or `send_system_text`.                                                              |
 
 #### Commands
 
@@ -147,11 +147,17 @@ Enables or disables turn detection based on the `new_turn_detection` value.
 - **Required Fields**: `channel_name`, `command`, `new_turn_detection`
 - **Description**: Sets the turn detection to `DEFAULT_TURN_DETECTION` if `new_turn_detection` is `true`, or disables it by setting to `None` if `new_turn_detection` is `false`.
 
+##### `send_system_text`
+Sends a message as if it came from a system, allowing the agent to process it as input.
+
+- **Required Fields**: `channel_name`, `command`, `input_text`
+- **Description**: Sends the specified `input_text` as input for the agent to respond to or use as part of its processing.
+
 ##### `send_user_text`
 Sends a message as if it came from a user, allowing the agent to process it as input.
 
-- **Required Fields**: `channel_name`, `command`, `user_text`
-- **Description**: Sends the specified `user_text` as input for the agent to respond to or use as part of its processing.
+- **Required Fields**: `channel_name`, `command`, `input_text`
+- **Description**: Sends the specified `input_text` as input for the agent to respond to or use as part of its processing.
 
 ##### `create_response`
 Generates a response based on the `new_instruction` provided.
