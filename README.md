@@ -126,7 +126,7 @@ This API controls an already running agent by sending various commands to adjust
 | Param             | Type     | Description                                                                                                                                                                    |
 |-------------------|----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `channel_name`    | `string` | (Required) The name of the channel where the agent is running. It must match the active channel of the agent that the command targets.                                        |
-| `command`         | `string` | (Required) The command to be sent to the agent. Possible values are: `update_instruction`, `update_turn_detection`, `send_user_text`, `create_response`, and `commit_audio_buffer`. |
+| `command`         | `string` | (Required) The command to be sent to the agent. Possible values are: `update_instruction`, `update_turn_detection`, `send_user_text`, `create_response`, `cancel_response`, and `commit_audio_buffer`. |
 | `new_instruction` | `string` | (Optional) The new system instruction for the agent. Required when `command` is `update_instruction` or `create_response`.                                                     |
 | `new_turn_detection` | `boolean` | (Optional) Specifies whether to enable or disable turn detection. When `command` is `update_turn_detection`, pass `true` to enable or `false` to disable.                    |
 | `input_text`       | `string` | (Optional) Text message from the user to be processed by the agent. Required when `command` is `send_user_text` or `send_system_text`.                                                              |
@@ -164,6 +164,12 @@ Generates a response based on the `new_instruction` provided.
 
 - **Required Fields**: `channel_name`, `command`, `new_instruction`
 - **Description**: Instructs the agent to generate a response according to the provided `new_instruction`. This is used to create specific responses directly.
+
+##### `cancel_response`
+Cancel a response.
+
+- **Required Fields**: `channel_name`, `command`
+- **Description**: Instructs the agent to cancel a response. This is used to cancel specific responses directly.
 
 ##### `commit_audio_buffer`
 Commits the current audio buffer, processing it for output or storage.

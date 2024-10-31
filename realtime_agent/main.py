@@ -259,6 +259,8 @@ async def control_agent(request):
         elif command == "create_response":
             command_queue.put("create_response")
             command_queue.put(new_instruction)
+        elif command == "cancel_response":
+            command_queue.put("cancel_response")
         elif command == "commit_audio_buffer":
             command_queue.put("commit_audio_buffer")
         else:

@@ -229,6 +229,8 @@ class RealtimeKitAgent:
             elif command == "create_response":
                 instruction = self.command_queue.get()  # Get the next item (instruction)
                 await self._create_response(instruction)
+            elif command == "cancel_response":
+                await self._cancel_response()
             elif command == "commit_audio_buffer":
                 await self._commit_audio_buffer()
 
@@ -323,7 +325,11 @@ class RealtimeKitAgent:
 
     async def _create_response(self, instruction:str) -> None:
         await self.connection.send_response_create(instruction)
-        logger.info(f"Create instruction sent: {instruction}")
+        logger.info(f"Create response sent: {instruction}")
+
+    async def _cancel_response(self) -> None:
+        await self.connection.send_response_cancel()
+        logger.info(f"Cancel response sent")
 
     async def _commit_audio_buffer(self) -> None:
         await self.connection.send_audio_data_commit()
